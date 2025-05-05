@@ -1,10 +1,11 @@
+import { MetricValues } from "@/app/(main)/page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReactNode } from "react";
 
 interface CustomCardProps {
   title: string;
   icon: ReactNode;
-  value: string;
+  value: number;
   description: string;
 }
 

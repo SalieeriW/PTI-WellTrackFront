@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
         })(),
     }),
 
-    // Email/Password Login Provider 
+    // Email/Password Login Provider
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -35,6 +35,8 @@ export const authOptions: NextAuthOptions = {
             email: credentials?.email,
             password: credentials?.password,
           });
+
+          console.log("Response from login:", response.data); // Log the response data
 
           if (response.status === 200 && response.data) {
             return { id: response.data.id, email: response.data.email }; // Ensure 'id' is included
@@ -71,7 +73,6 @@ export const authOptions: NextAuthOptions = {
         return null; // Return null if registration fails
       },
     }),
-    
   ],
   session: {
     strategy: "jwt",

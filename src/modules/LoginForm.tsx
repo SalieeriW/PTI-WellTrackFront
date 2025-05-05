@@ -33,7 +33,7 @@ export function LoginForm({
     if (!res?.ok) {
       setError("Invalid email or password");
     } else {
-      redirect("/main");
+      redirect("/");
     }
   };
 

@@ -13,6 +13,8 @@ import Calendar from "@/components/custom-calendar";
 import { ChallengeTable } from "@/components/table";
 import { useHydrationAttempts } from "@/hooks/use-hydrationattempts";
 import { useLevelTiredness } from "@/hooks/use-leveltiredness";
+import { JSX, useEffect, useState } from "react";
+import axios from "axios";
 
 // Valores que apareceran en la tabla de agua consumida:
 const barChartData = [
@@ -40,40 +42,68 @@ const timeData = [
   { name: "Tarea D", value: 20, color: "#ff8042" },
 ];
 
-
+export type MetricValues = {
+  water: number;
+  fatigue: number;
+  posture: number;
+  rest: number;
+};
 
 export default function Dashboard() {
-
-  const hydrationAttempts = useHydrationAttempts();
-  const fatiguescore = useLevelTiredness();
+  // const hydrationAttempts = useHydrationAttempts();
+  // const fatiguescore = useLevelTiredness();
 
   const metrics = [
     {
       title: "H2O Consumption Tracker",
       icon: <GlassWater />,
-      value: hydrationAttempts, //valor dinámico del hook
-      description: "+20.1% from last month",
+      description: "",
     },
     {
       title: "Fatigue Score",
       icon: <BatteryLow />,
-      value: "Low",
-      description: "+20.1% from last month",
+      description: "",
     },
     {
       title: "Posture Health Index",
       icon: <PersonStanding />,
-      value: "50%",
-      description: "+20.1% from last month",
+      description: "",
     },
     {
       title: "Rest Pause Count",
       icon: <MonitorPause />,
-      value: "10/10",
-      description: "Today Complete",
+      description: "",
     },
   ];
 
+  const [metricsValues, setMetricsValues] = useState<MetricValues>({
+    water: 0,
+    fatigue: 0,
+    posture: 0,
+    rest: 0,
+  });
+
+  useEffect(() => {
+    const fetchHydrationAttempts = async () => {
+      try {
+        console.log("Fetching hydration attempts...");
+        const response = await axios.post("http://localhost:3001/show_data", {
+          user_id: 1,
+        });
+        console.log("Hydration attempts:", response.data);
+        setMetricsValues({
+          water: response.data.hydration,
+          fatigue: response.data.nivel_of_stress,
+          posture: response.data.posture_correction,
+          rest: response.data.breaks,
+        });
+      } catch (error) {
+        console.error("Error fetching hydration attempts:", error);
+      }
+    };
+
+    fetchHydrationAttempts();
+  }, []);
 
   return (
     <div className="flex flex-col h-full w-full bg-gray-200">
@@ -84,7 +114,15 @@ export default function Dashboard() {
               key={index}
               title={metric.title}
               icon={metric.icon}
-              value={metric.value}
+              value={
+                index === 0
+                  ? metricsValues.water
+                  : index === 1
+                  ? metricsValues.fatigue
+                  : index === 2
+                  ? metricsValues.posture
+                  : metricsValues.rest
+              }
               description={metric.description}
             />
           ))}
