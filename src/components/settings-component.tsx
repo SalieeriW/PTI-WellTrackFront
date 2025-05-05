@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import axiosInstance from "@/lib/axiosInstance";
 
 function SettingsComponent() {
   const form = useForm<z.infer<typeof settingsSchema>>({
@@ -34,12 +35,29 @@ function SettingsComponent() {
       alertDuration: undefined,
       pauseAlerts: "Pause", // Default to a single value
       dataRetention: "30", // Default to a single value
+      lighttheme: false,
     },
   });
 
-  function onSubmit(data: z.infer<typeof settingsSchema>) {
-    console.log(data);
-  }
+  const onSubmit = async (data: z.infer<typeof settingsSchema>) => {
+    try {
+      const response = await axiosInstance.post("/update_user_settings_handler", {
+        defaultValues: data,
+      });
+  
+      if (response.status === 200) {
+        console.log("Settings updated successfully:", response.data);
+      } else {
+        console.error("Failed to update settings:", response.data);
+      }
+    } catch (error: any) {
+      if (error.response) {
+        console.error("Error response from server:", error.response.data);
+      } else {
+        console.error("Error updating settings:", error.message);
+      }
+    }
+  };
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -192,6 +210,26 @@ function SettingsComponent() {
                 </FormControl>
                 <FormDescription>
                   Choose how long the system should retain data.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Dark Mode Switch */}
+          <FormField
+            control={form.control}
+            name="lighttheme"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dark Mode</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Enable or disable dark mode for the system.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

@@ -7,6 +7,7 @@ export const settingsSchema = z.object({
   alertDuration: z.string().optional(),
   pauseAlerts: z.enum(["Pause", "Continue"]), // Single string value
   dataRetention: z.enum(["15", "30", "90"]), // Single string value
+  lighttheme: z.boolean(),
 });
 
 export const challengeSettingSchema = z.object({

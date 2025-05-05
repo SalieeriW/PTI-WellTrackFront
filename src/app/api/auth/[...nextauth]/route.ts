@@ -51,7 +51,7 @@ export const authOptions: NextAuthOptions = {
 
     // Email/Password Register Provider
     CredentialsProvider({
-      name: "Register",
+      name: "register",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
