@@ -13,9 +13,7 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="flex flex-col w-1/2 h-full justify-center items-center">
-        <div className="">
-          <ForgotPasswordForm />
-        </div>
+        <ForgotPasswordForm />
       </div>
     </div>
   );

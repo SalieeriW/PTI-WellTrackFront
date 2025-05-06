@@ -1,22 +1,20 @@
-# Frontend Dockerfile
-FROM oven/bun:latest
+# Usa la imagen oficial de Node.js
+FROM node:18
 
-
-# Set working directory
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copy bun.lockb and package.json (if available)
-COPY ./package.json ./
+# Copiar package.json y package-lock.json (si está disponible)
+COPY package.json ./
 
-# Install dependencies with Bun
-RUN bun install
+# Instalar las dependencias usando npm
+RUN npm install --force
 
-# Copy the rest of the frontend files
+# Copiar el resto de los archivos del frontend
 COPY . .
 
-
-# Expose the frontend port
+# Exponer el puerto del frontend
 EXPOSE 3000
 
-# Serve the app
-CMD ["bun", "run", "dev"]
+# Iniciar la aplicación frontend
+CMD ["npm", "run", "dev"]

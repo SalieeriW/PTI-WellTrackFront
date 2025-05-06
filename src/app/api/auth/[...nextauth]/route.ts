@@ -28,49 +28,36 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        action: { label: "Action", type: "text" }, // 'login' o 'register'
       },
+      // Backend registration logic in authorize method
       async authorize(credentials) {
         try {
-          const response = await axios.post("http://backend:3001/login", {
-            email: credentials?.email,
-            password: credentials?.password,
-          });
+          const { email, password, action } = credentials ?? {};
+          console.log("Credentials:", credentials);
+          console.log("Action:", action);
 
-          console.log("Response from login:", response.data); // Log the response data
+          const url =
+            action === "register"
+              ? "http://backend:3001/register"
+              : "http://backend:3001/login";
+          console.log("URL:", url);
 
-          if (response.status === 200 && response.data) {
-            return { id: response.data.id, email: response.data.email }; // Ensure 'id' is included
+          const response = await axios.post(url, { email, password });
+
+          if (
+            (action === "register" && response.status === 201) ||
+            (action !== "register" && response.status === 200)
+          ) {
+            return { id: response.data.id, email: response.data.email };
           }
         } catch (error) {
-          console.error("Login failed:", error);
+          console.error(`${credentials?.action || "Login"} failed:`, error);
+          return Promise.reject(
+            new Error("Invalid Email or Email already registered")
+          );
         }
-
-        return null; // Return null if authentication fails
-      },
-    }),
-
-    // Email/Password Register Provider
-    CredentialsProvider({
-      name: "register",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        try {
-          const response = await axios.post("http://backend:3001/register", {
-            email: credentials?.email,
-            password: credentials?.password,
-          });
-
-          if (response.status === 201 && response.data) {
-            return { id: response.data.id, email: response.data.email }; // Ensure 'id' is included
-          }
-        } catch (error) {
-          console.error("Registration failed:", error);
-        }
-
-        return null; // Return null if registration fails
+        return null;
       },
     }),
   ],

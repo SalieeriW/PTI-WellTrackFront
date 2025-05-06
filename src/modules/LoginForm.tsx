@@ -28,6 +28,7 @@ export function LoginForm({
       redirect: false,
       email,
       password,
+      action: "login",
     });
 
     if (!res?.ok) {

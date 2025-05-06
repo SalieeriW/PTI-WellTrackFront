@@ -15,6 +15,19 @@ import { useHydrationAttempts } from "@/hooks/use-hydrationattempts";
 import { useLevelTiredness } from "@/hooks/use-leveltiredness";
 import { JSX, useEffect, useState } from "react";
 import axios from "axios";
+import { useSession } from "next-auth/react";
+
+// Extend the Session type to include the id property
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  }
+}
 
 // Valores que apareceran en la tabla de agua consumida:
 const barChartData = [
@@ -53,6 +66,9 @@ export default function Dashboard() {
   // const hydrationAttempts = useHydrationAttempts();
   // const fatiguescore = useLevelTiredness();
 
+  const session = useSession();
+  console.log(session);
+  console.log(session.data?.user?.id); // Using 'email' as the identifier
   const metrics = [
     {
       title: "H2O Consumption Tracker",
@@ -88,9 +104,9 @@ export default function Dashboard() {
       try {
         console.log("Fetching hydration attempts...");
         const response = await axios.post("http://localhost:3001/show_data", {
-          user_id: 1,
+          user_id: session.data?.user?.id,
         });
-        console.log("Hydration attempts:", response.data);
+
         setMetricsValues({
           water: response.data.hydration,
           fatigue: response.data.nivel_of_stress,
@@ -98,7 +114,12 @@ export default function Dashboard() {
           rest: response.data.breaks,
         });
       } catch (error) {
-        console.error("Error fetching hydration attempts:", error);
+        setMetricsValues({
+          water: 0,
+          fatigue: 0,
+          posture: 0,
+          rest: 0,
+        });
       }
     };
 

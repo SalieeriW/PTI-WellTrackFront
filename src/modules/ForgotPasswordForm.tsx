@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import axios from "axios";
 
 export function ForgotPasswordForm({
   className,
@@ -22,29 +23,25 @@ export function ForgotPasswordForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-
     try {
-      const response = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const response = await axios.post(
+        "http://localhost:3001/recover_password",
+        { email }
+      );
 
-      if (response.ok) {
-        setSuccess("Password reset instructions have been sent to your email.");
-      } else {
-        const data = await response.json();
-        setError(data.message || "Failed to send password reset instructions.");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      setSuccess("Password reset instructions have been sent to your email.");
+      setError("");
+    } catch (error) {
+      setError(
+        "An error occurred while sending the request. Please try again."
+      );
+      console.log("Error occurred while sending the request:", error);
+      setSuccess("");
     }
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("w-1/2 flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Forgot Password</CardTitle>
