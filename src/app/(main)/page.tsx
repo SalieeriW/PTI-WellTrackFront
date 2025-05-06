@@ -11,8 +11,6 @@ import BarChartComponent from "@/components/barchart";
 import PieChartComponent from "@/components/piechart";
 import Calendar from "@/components/custom-calendar";
 import { ChallengeTable } from "@/components/table";
-import { useHydrationAttempts } from "@/hooks/use-hydrationattempts";
-import { useLevelTiredness } from "@/hooks/use-leveltiredness";
 import { JSX, useEffect, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";

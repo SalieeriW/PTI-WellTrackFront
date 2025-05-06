@@ -15,6 +15,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+
+// Extend the Session type to include the id property
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  }
+}
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -22,6 +36,12 @@ const formSchema = z.object({
 });
 
 export default function UserSettingsComponent() {
+
+
+
+  const { data: session } = useSession(); // Obtener la sesión del usuario
+  console.log(session);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,7 +51,36 @@ export default function UserSettingsComponent() {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+     console.log(values);
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/delete_account", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: session?.user?.email, // Obtener el email del usuario desde la sesión
+          id: session?.user?.id, // Obtener el ID del usuario desde la sesión
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Account deleted successfully:", data);
+        alert("Account deleted successfully!");
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to delete account:", errorData);
+        alert(`Failed to delete account: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("An unexpected error occurred. Please try again.");
+    }
+    
   };
 
   return (
@@ -78,7 +127,12 @@ export default function UserSettingsComponent() {
           </div>
 
           <div className="flex flex-row justify-between pt-4">
-            <Button variant="destructive">Delete Account</Button>
+          <Button
+              variant="destructive"
+              onClick={handleDeleteAccount}
+            >
+              Delete Account
+            </Button>
             <Button type="submit">Save changes</Button>
           </div>
         </div>
