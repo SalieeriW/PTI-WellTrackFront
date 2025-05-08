@@ -36,7 +36,7 @@ const formSchema = z.object({
 });
 
 export default function UserSettingsComponent() {
-  const { data: session } = useSession(); // Obtener la sesión del usuario
+  const session = useSession();
   console.log(session);
 
   const form = useForm({
@@ -53,15 +53,9 @@ export default function UserSettingsComponent() {
 
   const handleDeleteAccount = async () => {
     try {
-      const response = await fetch("http://localhost:3001/delete_account", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: session?.user?.email, // Obtener el email del usuario desde la sesión
-          id: session?.user?.id, // Obtener el ID del usuario desde la sesión
-        }),
+      const response = await axios.post("http://localhost:3001/delete_account", {
+        email: session.data?.user?.email,
+        user_id: session.data?.user?.id,
       });
 
       if (response.ok) {
