@@ -36,9 +36,6 @@ const formSchema = z.object({
 });
 
 export default function UserSettingsComponent() {
-
-
-
   const { data: session } = useSession(); // Obtener la sesión del usuario
   console.log(session);
 

@@ -24,18 +24,23 @@ export function ForgotPasswordForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "http://localhost:3001/recover_password",
-        { email }
-      );
-
-      setSuccess("Password reset instructions have been sent to your email.");
-      setError("");
-    } catch (error) {
+      const response = await axios.post("http://localhost:3001/recover_password", {
+        email, // Enviar solo el email desde el formulario
+      });
+  
+      if (response.status === 200) {
+        setSuccess("Password reset instructions have been sent to your email.");
+        setError("");
+      } else {
+        setError("Failed to send reset instructions. Please try again.");
+        setSuccess("");
+      }
+    } catch (error: any) {
+      console.error("Error occurred while sending the request:", error);
       setError(
-        "An error occurred while sending the request. Please try again."
+        error.response?.data?.message ||
+          "An error occurred while sending the request. Please try again."
       );
-      console.log("Error occurred while sending the request:", error);
       setSuccess("");
     }
   };
