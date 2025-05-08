@@ -255,6 +255,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import axios from "axios";
+import { useSession } from "next-auth/react";
+
+// Extend the Session type to include the id property
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  }
+}
 
 // Esquema de validación con Zod
 const ChallengeSchema = z.object({
@@ -274,6 +287,8 @@ type Props = {
 };
 
 export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
+  const session = useSession();
+
   const form = useForm<Challenge>({
     resolver: zodResolver(ChallengeSchema),
     defaultValues: {
@@ -288,9 +303,7 @@ export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
 
   const handleSubmit = async (values: Challenge) => {
     try {
-      // Generar un ID único para el usuario
-      const user_id = uuidv4();
-
+      const user_id = parseInt(session.data?.user?.id || "0", 10); // Convertir a número entero
       // Realizar la solicitud al endpoint /challenge
       const response = await axios.post("http://localhost:3001/challenge", {
         user_id, // ID generado automáticamente
