@@ -17,14 +17,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-];
-
 const chartConfig = {
   visitors: {
     label: "Visitors",
@@ -50,12 +42,30 @@ const chartConfig = {
     color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig;
+import { Cell } from "recharts";
 
-export default function PieChartComponent() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
-  }, []);
+// Define a base color palette
+const BASE_COLORS = [
+  "#8884d8",
+  "#82ca9d",
+  "#ffc658",
+  "#ff8042",
+  "#a4de6c",
+  "#d0ed57",
+  "#8dd1e1",
+  "#ffbb28",
+  "#ff69b4",
+  "#00c49f",
+  "#ff7300",
+];
 
+// Function to generate a random HSL color (fallback)
+const getRandomColor = () => {
+  const hue = Math.floor(Math.random() * 360);
+  return `hsl(${hue}, 70%, 60%)`;
+};
+
+export default function PieChartComponent({ chartData }: any) {
   return (
     <Card className="flex flex-col h-full w-full">
       <CardHeader className="items-center pb-0">
@@ -66,19 +76,22 @@ export default function PieChartComponent() {
       <CardContent className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="mx-auto w-full h-full">
           <PieChart>
-            {" "}
-            {/* Make PieChart responsive */}
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
               data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
+              dataKey="progress"
+              nameKey="name"
               innerRadius={60}
               strokeWidth={5}
             >
+              {chartData.map((entry: any, index: number) => {
+                const color = BASE_COLORS[index] || getRandomColor(); // Use palette or fallback
+                return <Cell key={`cell-${index}`} fill={color} />;
+              })}
+
               <Label
                 content={({ viewBox }) => {
                   if (viewBox && "cx" in viewBox && "cy" in viewBox) {
@@ -93,16 +106,12 @@ export default function PieChartComponent() {
                           x={viewBox.cx}
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
-                        >
-                          {totalVisitors.toLocaleString()}
-                        </tspan>
+                        ></tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
-                        >
-                          Visitors
-                        </tspan>
+                        ></tspan>
                       </text>
                     );
                   }

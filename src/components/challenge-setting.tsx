@@ -1,8 +1,15 @@
 "use client";
-import React from "react";
+
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { challengeSettingSchema } from "@/schema/setting-schema";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+
+import { Check, Goal } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,8 +20,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
-import { Check, Goal } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -22,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useForm } from "react-hook-form";
 import {
   Card,
   CardHeader,
@@ -33,19 +37,63 @@ import {
 } from "@/components/ui/card";
 
 function ChallengeSettings() {
+  const session = useSession();
+
   const form = useForm<z.infer<typeof challengeSettingSchema>>({
     resolver: zodResolver(challengeSettingSchema),
     defaultValues: {
-      allowInform: false,
-      deepAnalisis: false,
-      autoEmail: false,
-      frequency: "daily",
+      allow_deepanalisis: false, // <-- updated name (if needed)
+      auto_email: false,
+      alert_frecuency: "daily",
     },
   });
 
-  function onSubmit(data: z.infer<typeof challengeSettingSchema>) {
-    console.log(data);
-  }
+  // Fetch settings on mount
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const id = session.data?.user?.id;
+      if (!id) return;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/challenges/settings/${id}`
+        );
+
+        console.log("Response from settings API:", response);
+        const parsedData = {
+          allow_deepanalisis: response.data.allow_deepanalisis,
+          auto_email: response.data.auto_email,
+          alert_frecuency: response.data.alert_frecuency,
+        };
+
+        console.log("Fetched settings:", parsedData);
+        form.reset(parsedData);
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+      }
+    };
+
+    if (session.status === "authenticated") {
+      fetchSettings();
+    }
+  }, []);
+
+  const onSubmit = async (data: z.infer<typeof challengeSettingSchema>) => {
+    const id = session.data?.user?.id;
+    if (!id) return;
+
+    console.log("Form data to be sent:", data);
+
+    try {
+      await axios.post(
+        `http://localhost:3001/api/challenges/settings/${id}`,
+        data
+      );
+      alert("Settings saved successfully."); // or use toast
+    } catch (error) {
+      console.error("Error saving settings:", error);
+    }
+  };
 
   return (
     <Card className="w-full mx-auto">
@@ -61,10 +109,10 @@ function ChallengeSettings() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="allowInform"
+                name="auto_email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Allow Inform</FormLabel>
+                    <FormLabel>Auto Email</FormLabel>
                     <FormControl>
                       <Switch
                         checked={field.value}
@@ -72,7 +120,8 @@ function ChallengeSettings() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Allow the system to generate informs.
+                      Automatically send email notifications when alerts are
+                      triggered.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -81,10 +130,10 @@ function ChallengeSettings() {
 
               <FormField
                 control={form.control}
-                name="deepAnalisis"
+                name="allow_deepanalisis"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deep Analisis</FormLabel>
+                    <FormLabel>Deep Analysis</FormLabel>
                     <FormControl>
                       <Switch
                         checked={field.value}
@@ -101,7 +150,7 @@ function ChallengeSettings() {
 
               <FormField
                 control={form.control}
-                name="frequency"
+                name="alert_frecuency"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Alert Frequency</FormLabel>
@@ -141,33 +190,12 @@ function ChallengeSettings() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="autoEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Auto Email</FormLabel>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Automatically send email notifications when alerts are
-                      triggered.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <CardFooter className="flex justify-end p-0 pt-4">
                 <Button type="submit">Save</Button>
               </CardFooter>
             </form>
           </Form>
-          <Goal size={300} strokeWidth={0.5} className=" hidden sm:flex"></Goal>
+          <Goal size={300} strokeWidth={0.5} className="hidden sm:flex" />
         </div>
       </CardContent>
     </Card>

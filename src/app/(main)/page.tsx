@@ -60,26 +60,27 @@ export type MetricValues = {
   rest: number;
 };
 
+const dayLetterMap = ["D", "L", "M", "X", "J", "V", "S"]; // Sunday = 0
+const weekdayOrder = ["L", "M", "X", "J", "V", "S", "D"]; // usado para ordenar
+
 export default function Dashboard() {
   // const hydrationAttempts = useHydrationAttempts();
   // const fatiguescore = useLevelTiredness();
 
   const session = useSession();
-  console.log(session);
-  console.log(session.data?.user?.id); // Using 'email' as the identifier
   const metrics = [
     {
-      title: "H2O Consumption Tracker",
+      title: "Drinking Times",
       icon: <GlassWater />,
       description: "",
     },
     {
-      title: "Fatigue Score",
+      title: "Fatigue Times",
       icon: <BatteryLow />,
       description: "",
     },
     {
-      title: "Posture Health Index",
+      title: "Bad Posture Times",
       icon: <PersonStanding />,
       description: "",
     },
@@ -96,32 +97,61 @@ export default function Dashboard() {
     posture: 0,
     rest: 0,
   });
+  const [barChartData, setBarChartData] = useState([]);
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
-    const fetchHydrationAttempts = async () => {
+    const fetchDashboardMetrics = async () => {
       try {
-        console.log("Fetching hydration attempts...");
-        const response = await axios.post("http://localhost:3001/show_data", {
-          user_id: session.data?.user?.id,
-        });
+        const id = session.data?.user?.id;
+        if (!id) return;
+
+        const response = await axios.get(
+          `http://localhost:3001/api/dashboard/${id}`
+        );
+
+        console.log("Response from dashboard API:", response);
+
+        const data = response.data;
 
         setMetricsValues({
-          water: response.data.hydration,
-          fatigue: response.data.nivel_of_stress,
-          posture: response.data.posture_correction,
-          rest: response.data.breaks,
+          water: data.is_drinking,
+          fatigue: data.is_tired,
+          posture: data.is_badpos,
+          rest: data.rest,
         });
+
+        const transformedData = data.weeklyDrinking.map(
+          (entry: { day: string; value: number }) => {
+            const date = new Date(entry.day);
+            const dayIndex = date.getDay(); // 0 (Sun) to 6 (Sat)
+            const dayLetter = dayLetterMap[dayIndex];
+            return { day: dayLetter, value: entry.value };
+          }
+        );
+
+        const sorted = transformedData.sort(
+          (a: { day: string }, b: { day: string }) =>
+            weekdayOrder.indexOf(a.day) - weekdayOrder.indexOf(b.day)
+        );
+
+        setBarChartData(sorted);
+
+        setChartData(data.challengesProgress);
       } catch (error) {
+        console.error("Error fetching dashboard metrics:", error);
         setMetricsValues({
           water: 0,
           fatigue: 0,
           posture: 0,
           rest: 0,
         });
+        setBarChartData([]);
+        setChartData([]);
       }
     };
 
-    fetchHydrationAttempts();
+    fetchDashboardMetrics();
   }, []);
 
   return (
@@ -151,9 +181,9 @@ export default function Dashboard() {
             data={barChartData}
             title="Weekly Water Consumption"
           />
-          <PieChartComponent />
+          <PieChartComponent chartData={chartData} />
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 w-full mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 w-full h-full mt-4">
           <div className="lg:col-span-7 h-full">
             <ChallengeTable />
           </div>

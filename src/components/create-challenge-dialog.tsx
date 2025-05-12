@@ -232,7 +232,6 @@ export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
   );
 }*/
 
-
 "use client";
 import { v4 as uuidv4 } from "uuid";
 import React from "react";
@@ -256,30 +255,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-
-// Extend the Session type to include the id property
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id?: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-    };
-  }
-}
-
-// Esquema de validación con Zod
-const ChallengeSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
-  progress: z.number().min(0).max(100, "Progress must be between 0 and 100"),
-  criteria: z.string().min(1, "Criteria is required"),
-  metric: z.string().min(1, "Metric is required"),
-  completed: z.boolean(),
-});
-
-type Challenge = z.infer<typeof ChallengeSchema>;
+import ChallengeSchema, { Challenge } from "@/schema/challenge-schema";
 
 type Props = {
   onClose: () => void;
@@ -295,52 +271,15 @@ export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
       name: "",
       description: "",
       progress: 0,
-      criteria: "",
-      metric: "",
-      completed: false,
+      criterion: 0,
+      metricTypes: "",
     },
   });
 
-  const handleSubmit = async (values: Challenge) => {
-    try {
-      const user_id = parseInt(session.data?.user?.id || "0", 10); // Convertir a número entero
-      // Realizar la solicitud al endpoint /challenge
-      const response = await axios.post("http://localhost:3001/challenge", {
-        user_id, // ID generado automáticamente
-        name: values.name,
-        description: values.description,
-        progress: values.progress,
-        criteria: values.criteria,
-        metric: values.metric,
-        completed: values.completed,
-      });
-
-      if (response.status === 200) {
-        console.log("Challenge created successfully:", response.data);
-        onCreate(response.data); // Agregar el desafío a la lista
-        form.reset();
-        onClose(); // Cerrar el diálogo
-      } else {
-        console.error("Failed to create challenge:", response.data);
-        alert("Failed to create challenge. Please try again.");
-      }
-    } catch (error: any) {
-      if (error.response) {
-        // Error del servidor
-        console.error("Server error:", error.response.data);
-        alert(
-          `Error: ${error.response.data.message || "Failed to create challenge."}`
-        );
-      } else if (error.request) {
-        // Error de red
-        console.error("Network error:", error.request);
-        alert("Network error. Please check your connection.");
-      } else {
-        // Otro tipo de error
-        console.error("Error:", error.message);
-        alert("An unexpected error occurred. Please try again.");
-      }
-    }
+  const handleSubmit = (values: Challenge) => {
+    console.log("Challenge created:", values);
+    onCreate(values);
+    form.reset();
   };
 
   return (
@@ -350,11 +289,11 @@ export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
       </DialogHeader>
 
       <DialogContent>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="space-y-4 pt-4"
-        >
-          <Form {...form}>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4 pt-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -390,8 +329,9 @@ export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
                   <FormControl>
                     <Input
                       type="number"
-                      placeholder="Progress (e.g., 0, 50, 100)"
-                      {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      placeholder="Progress (0-100)"
                     />
                   </FormControl>
                 </FormItem>
@@ -400,12 +340,17 @@ export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
 
             <FormField
               control={form.control}
-              name="criteria"
+              name="criterion"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Criteria</FormLabel>
+                  <FormLabel>Criterion</FormLabel>
                   <FormControl>
-                    <Input placeholder="Criteria" {...field} />
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      placeholder="Duration in seconds"
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -413,34 +358,12 @@ export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
 
             <FormField
               control={form.control}
-              name="metric"
+              name="metricTypes"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Metric</FormLabel>
                   <FormControl>
-                    <Input placeholder="Metric (e.g., time, tasks)" {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="completed"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Completed</FormLabel>
-                  <FormControl>
-                    <select
-                      className="w-full border rounded px-2 py-1"
-                      value={field.value ? "true" : "false"}
-                      onChange={(e) =>
-                        field.onChange(e.target.value === "true")
-                      }
-                    >
-                      <option value="true">True</option>
-                      <option value="false">False</option>
-                    </select>
+                    <Input placeholder="e.g., time, focus" {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -452,8 +375,8 @@ export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
               </Button>
               <Button type="submit">Create</Button>
             </div>
-          </Form>
-        </form>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

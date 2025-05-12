@@ -16,9 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { KeyRound } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
+import { useSession } from "next-auth/react";
 
-
-// Esquema de validación con zod
+// Schema for validation
 const formSchema = z.object({
   current: z.string().min(1, "Current password is required"),
   new: z
@@ -28,6 +28,9 @@ const formSchema = z.object({
 });
 
 export default function PasswordSettingsComponent() {
+  const session = useSession();
+  const userId = session.data?.user?.id;
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,32 +39,23 @@ export default function PasswordSettingsComponent() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log("Password submitted:", values);const onSubmit = async (values: z.infer<typeof formSchema>) => {
-      try {
-        const response = await axiosInstance.post("/change_password", {
-          user_id: 1, // ID del usuario
-          current_password: values.current,
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const response = await axiosInstance.post(
+        `http://localhost:3001/api/auth/change_password/${userId}`,
+        {
+          old_password: values.current,
           new_password: values.new,
-        });
-  
-        if (response.status === 200) {
-          console.log("Password changed successfully:", response.data);
-          alert("Password updated successfully!");
-        } else {
-          console.error("Failed to change password:", response.data);
-          alert("Failed to update password. Please try again.");
         }
-      } catch (error: any) {
-        if (error.response) {
-          console.error("Error response from server:", error.response.data);
-          alert(`Error: ${error.response.data.message || "Something went wrong"}`);
-        } else {
-          console.error("Error changing password:", error.message);
-          alert("An unexpected error occurred. Please try again.");
-        }
+      );
+      alert("Password changed successfully");
+    } catch (error: any) {
+      if (error.response) {
+        alert(`Error: ${error.response.data.error || "Something went wrong"}`);
+      } else {
+        alert("An unexpected error occurred. Please try again.");
       }
-    };
+    }
   };
 
   return (

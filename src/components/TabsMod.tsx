@@ -17,14 +17,13 @@ export default function AccoutManagement() {
       value: "account",
       title: "Account",
       description:
-        "Update your email address here. Click save when you're done.",
+        "Update your personal information here. Click save when you're done.",
       content: <UserSettingsComponent />,
     },
     {
       value: "password",
       title: "Password",
-      description:
-        "Change your password here. After saving, you'll be logged out.",
+      description: "Change your password here.",
       content: <PasswordSettingsComponent />,
     },
   ];

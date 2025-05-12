@@ -21,14 +21,6 @@ export default function SmartTaskTable({
     );
   };
 
-  const handleUpdate = (updatedSmartTask: SmartTask) => {
-    setSmartTask((prev) =>
-      prev.map((st) => (st.id === updatedSmartTask.id ? updatedSmartTask : st))
-    );
-    setSelected(null);
-    console.log("Updated SmartTask:", updatedSmartTask);
-  };
-
   const columns = getColumns(handleDelete);
 
   return (
@@ -38,13 +30,6 @@ export default function SmartTaskTable({
         data={smartTasks}
         onRowClick={(row) => setSelected(row.original)}
       />
-      {selected && (
-        <EditSmartTaskDialog
-          smartTask={selected}
-          onClose={() => setSelected(null)}
-          onSave={handleUpdate}
-        />
-      )}
     </>
   );
 }

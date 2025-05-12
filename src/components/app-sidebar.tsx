@@ -34,11 +34,6 @@ const items = [
     icon: Home,
   },
   {
-    title: "Metrics",
-    url: "/metrics",
-    icon: PieChart,
-  },
-  {
     title: "Challenges",
     url: "/challenges",
     icon: MessageSquare,

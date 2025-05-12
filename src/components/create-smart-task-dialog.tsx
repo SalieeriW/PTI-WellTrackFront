@@ -21,15 +21,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import SmartTaskSchema, { SmartTask } from "@/schema/smart-task.schema";
+import ChallengeSchema, { Challenge } from "@/schema/challenge-schema";
 
 type Props = {
   onClose: () => void;
-  onCreate: (newSmartTask: SmartTask) => void;
+  onCreate: (newSmartTask: Challenge) => void;
 };
 
 export default function CreateSmartTaskDialog({ onClose, onCreate }: Props) {
-  const form = useForm<z.infer<typeof SmartTaskSchema>>({
-    resolver: zodResolver(SmartTaskSchema),
+  const form = useForm<z.infer<typeof ChallengeSchema>>({
+    resolver: zodResolver(ChallengeSchema),
     defaultValues: {
       id: "",
       name: "",
@@ -38,7 +39,7 @@ export default function CreateSmartTaskDialog({ onClose, onCreate }: Props) {
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof SmartTaskSchema>) => {
+  const handleSubmit = (values: z.infer<typeof ChallengeSchema>) => {
     // Log validation errors if any
     if (form.formState.errors) {
       console.log("Form validation errors:", form.formState.errors);
@@ -47,7 +48,6 @@ export default function CreateSmartTaskDialog({ onClose, onCreate }: Props) {
     // If there are no validation errors, submit the form
     if (Object.keys(form.formState.errors).length === 0) {
       console.log("SmartTask created:", values);
-      values.id = uuidv4(); // Generate a unique ID for the new SmartTask
       onCreate(values); // Pass the new SmartTask to the onCreate callback
       form.reset(); // Reset the form
     } else {
@@ -71,9 +71,9 @@ export default function CreateSmartTaskDialog({ onClose, onCreate }: Props) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>SmartTask Name</FormLabel>
+                  <FormLabel>Challenge Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="SmartTask Name" {...field} />
+                    <Input placeholder="Challenge Name" {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -86,7 +86,7 @@ export default function CreateSmartTaskDialog({ onClose, onCreate }: Props) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="SmartTask Description" {...field} />
+                    <Input placeholder="Challenge Description" {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -94,17 +94,73 @@ export default function CreateSmartTaskDialog({ onClose, onCreate }: Props) {
 
             <FormField
               control={form.control}
-              name="date"
+              name="progress"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date</FormLabel>
+                  <FormLabel>Progress</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      placeholder="Progress (0-100)"
+                    />
                   </FormControl>
                 </FormItem>
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="criterion"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Criterion</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      placeholder="Duration in seconds"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="fingers"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fingers</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      placeholder="Fingers to activate"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="metricTypes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Metric</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Metric (e.g., time, tasks)"
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
             <div className="flex justify-end pt-2 gap-2">
               <Button type="button" variant="ghost" onClick={onClose}>
                 Cancel

@@ -14,25 +14,24 @@ import { SelectContent, SelectItem, SelectTrigger } from "./ui/select";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Switch } from "./ui/switch";
-import { Timer } from "lucide-react";
+import { Activity, Timer } from "lucide-react";
+import { Challenge } from "@/schema/challenge-schema";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 
 type Mode = "Challenge" | "Short Break" | "Long Break";
 
-interface Challenge {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-}
-
 function PomodoroTimer({ challenges }: { challenges: Challenge[] }) {
+  const session = useSession();
+  const id = session.data?.user?.id;
+
   const [mode, setMode] = useState<Mode>("Challenge");
   const [isRunning, setIsRunning] = useState(false);
-  const [currentChallenge, setChallenge] = useState<string>("clean-desk"); // State to track if the timer is completed
+  const [currentChallenge, setChallenge] = useState<string>(""); // State to track if the timer is completed
   const [isCompleted, setIsCompleted] = useState(false); // State to track if the timer is completed
   const [time, setTime] = useState(
     challenges.find((challenge) => challenge.id === currentChallenge)
-      ?.duration || 0
+      ?.criterion || 0
   ); // 25 minutes in seconds
   const [isAlarmOn, setIsAlarmOn] = useState(false); // State to track if the alarm is on
   const [longBreakTime, setLongBreakTime] = useState(15 * 60); // State to track long break time
@@ -47,12 +46,52 @@ function PomodoroTimer({ challenges }: { challenges: Challenge[] }) {
     )}`;
   };
 
+  const logPomodoroEvent = async (
+    event: string,
+    challengeId: string,
+    progress: number
+  ) => {
+    try {
+      if (event === "pomodoroGet") {
+        const response = await axios.get(
+          `http://localhost:3001/api/challenges/${id}/${challengeId}`
+        );
+
+        return response.data.progress;
+      } else if (event === "pomodoroCompleted") {
+        const response = await axios.patch(
+          `http://localhost:3001/api/challenges/${id}/${challengeId}`,
+          {
+            progress: progress,
+            completed: true,
+          }
+        );
+      } else if (event === "pomodoroLog") {
+        const response = await axios.patch(
+          `http://localhost:3001/api/challenges/${id}/${challengeId}`,
+          {
+            progress: progress,
+          }
+        );
+      } else if (event === "pomodoroRest") {
+        const response = await axios.post(
+          `http://localhost:3001/api/activity/${id}`,
+          {
+            activity: "rest",
+          }
+        );
+      }
+    } catch (err) {
+      console.error("Failed to log Pomodoro event:", err);
+    }
+  };
+
   const handleModeChange = (newMode: Mode) => {
     setMode(newMode);
     setTime(
       newMode === "Challenge"
         ? challenges.find((challenge) => challenge.id === currentChallenge)
-            ?.duration || 0
+            ?.criterion || 0
         : newMode === "Short Break"
         ? shortBreakTime
         : longBreakTime
@@ -91,8 +130,27 @@ function PomodoroTimer({ challenges }: { challenges: Challenge[] }) {
     // Only show the toast when the timer completes for the first time
     if (isCompleted) {
       toast("Task completed!");
+      if (isAlarmOn) {
+        const audio = new Audio(
+          "https://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/bonus.wav"
+        ); // Replace with a public URL to an alarm sound
+        audio.play();
+      }
+      if (mode !== "Challenge") {
+        logPomodoroEvent("pomodoroRest", currentChallenge, time);
+      } else {
+        logPomodoroEvent("pomodoroCompleted", currentChallenge, time);
+      }
     }
   }, [isCompleted]); // This will run when isCompleted changes to true
+
+  useEffect(() => {
+    return () => {
+      if (!isCompleted && currentChallenge) {
+        logPomodoroEvent("pomodoroLog", currentChallenge, time);
+      }
+    };
+  }, []);
 
   return (
     <Card className="w-full">
@@ -141,8 +199,8 @@ function PomodoroTimer({ challenges }: { challenges: Challenge[] }) {
                       (challenge) => challenge.id === value
                     );
                     if (selected) {
-                      setChallenge(selected.id);
-                      setTime(selected.duration);
+                      setChallenge(selected.id!);
+                      setTime(selected.progress);
                     }
                   }}
                 >
@@ -153,7 +211,7 @@ function PomodoroTimer({ challenges }: { challenges: Challenge[] }) {
                   </SelectTrigger>
                   <SelectContent className="rounded-sm">
                     {challenges.map((challenge) => (
-                      <SelectItem key={challenge.id} value={challenge.id}>
+                      <SelectItem key={challenge.id} value={challenge.id!}>
                         {challenge.name}
                       </SelectItem>
                     ))}

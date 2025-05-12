@@ -34,23 +34,13 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         try {
           const { email, password, action } = credentials ?? {};
-          console.log("Credentials:", credentials);
-          console.log("Action:", action);
-
           const url =
             action === "register"
-              ? "http://backend:3001/register"
-              : "http://backend:3001/login";
-          console.log("URL:", url);
+              ? "http://backend:3001/api/auth/register"
+              : "http://backend:3001/api/auth/login";
 
           const response = await axios.post(url, { email, password });
-
-          if (
-            (action === "register" && response.status === 201) ||
-            (action !== "register" && response.status === 200)
-          ) {
-            return { id: response.data.id, email: response.data.email };
-          }
+          return { id: response.data.user_id, email: response.data.email };
         } catch (error) {
           console.error(`${credentials?.action || "Login"} failed:`, error);
           return Promise.reject(

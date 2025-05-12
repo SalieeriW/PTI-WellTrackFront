@@ -15,7 +15,7 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 
 export function ChallengeTable() {
-  const { data: session } = useSession(); // Obtener la sesión del usuario
+  const session = useSession();
   const [challenges, setChallenges] = useState<any[]>([]); // Estado para almacenar los desafíos
   const [loading, setLoading] = useState<boolean>(true); // Estado para manejar la carga
   const [error, setError] = useState<string | null>(null); // Estado para manejar errores
@@ -39,29 +39,23 @@ export function ChallengeTable() {
   ];
 
   useEffect(() => {
+    const id = session.data?.user?.id;
+
     const fetchChallenges = async () => {
       try {
-        const response = await axios.post("http://localhost:3001/show_challenges", {
-          user_id: session?.user?.id, // Obtener el ID del usuario desde la sesión
-        });
+        const response = await axios.get(
+          `http://localhost:3001/api/challenges/${id}`
+        );
 
-        if (response.status === 200) { //Para verificar si la respuesta esta correcta
-          // Mapear los datos recibidos
-          const challenges = response.data.map((item: any) => ({
-            name: item.name,
-            description: item.description,
-            progress: item.progress,
-            criteria: item.criteria,
-            metric: item.metric,
-          }));
+        const challenges = response.data.map((item: any) => ({
+          name: item.name,
+          description: item.description,
+          progress: item.progress,
+          criteria: item.meta,
+          metric: item.metric,
+        }));
 
-          setChallenges(challenges); // Actualizar el estado con los desafíos
-
-        } else {
-          console.error("Failed to fetch challenges:", response.data);
-          setError("Failed to fetch challenges");
-          setChallenges(defaultChallenges); // Usar valores predeterminados
-        }
+        setChallenges(challenges); // Actualizar el estado con los desafíos
       } catch (err: any) {
         console.error("Error fetching challenges:", err.message || err);
         setError("An unexpected error occurred");
@@ -70,12 +64,9 @@ export function ChallengeTable() {
         setLoading(false); // Finalizar el estado de carga
       }
     };
-
-    if (session?.user?.id) {
-      fetchChallenges();
-    }
+    fetchChallenges();
   }, []);
-/*
+  /*
   if (loading) {
     return <div>Loading challenges...</div>;
   }
@@ -94,7 +85,7 @@ export function ChallengeTable() {
             <TableHead className="w-[100px]">Name</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Criterion</TableHead>
+            <TableHead>Objective</TableHead>
             <TableHead>Metric</TableHead>
           </TableRow>
         </TableHeader>
@@ -111,7 +102,9 @@ export function ChallengeTable() {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={5}>Total Challenges: {challenges.length}</TableCell>
+            <TableCell colSpan={5}>
+              Total Challenges: {challenges.length}
+            </TableCell>
           </TableRow>
         </TableFooter>
       </Table>

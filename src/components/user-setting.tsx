@@ -16,7 +16,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import axios from "axios";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { LogOut } from "lucide-react";
 
 // Extend the Session type to include the id property
 declare module "next-auth" {
@@ -31,47 +33,69 @@ declare module "next-auth" {
 }
 
 const formSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+  firstname: z.string().min(1, "First name is required"),
+  lastname: z.string().min(1, "Last name is required"),
 });
 
 export default function UserSettingsComponent() {
   const session = useSession();
-  console.log(session);
+  const userId = session.data?.user?.id;
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "John",
-      lastName: "Doe",
+      firstname: "",
+      lastname: "",
     },
   });
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userId) return;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/auth/get_names/${userId}`
+        );
+        const { firstname, lastname } = response.data;
+
+        form.reset({
+          firstname: firstname || "",
+          lastname: lastname || "",
+        });
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        alert("Failed to load user data. Please try again.");
+      }
+    };
+
+    fetchUserData();
+  }, [userId, form]);
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-     console.log(values);
+    try {
+      axios.post(
+        `http://localhost:3001/api/auth/change_name/${userId}`,
+        values
+      );
+      alert("Name updated successfully!");
+    } catch (error) {
+      console.error("Error updating name:", error);
+      alert("An unexpected error occurred. Please try again.");
+    }
   };
 
   const handleDeleteAccount = async () => {
     try {
-      const response = await axios.post("http://localhost:3001/delete_account", {
-        email: session.data?.user?.email,
-        user_id: session.data?.user?.id,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Account deleted successfully:", data);
-        alert("Account deleted successfully!");
-      } else {
-        const errorData = await response.json();
-        console.error("Failed to delete account:", errorData);
-        alert(`Failed to delete account: ${errorData.message}`);
-      }
+      const response = await axios.delete(
+        `http://localhost:3001/api/auth/delete_account/${userId}`
+      );
+      alert("Account deleted successfully!");
+      signOut();
     } catch (error) {
       console.error("Error deleting account:", error);
       alert("An unexpected error occurred. Please try again.");
     }
-    
   };
 
   return (
@@ -93,7 +117,7 @@ export default function UserSettingsComponent() {
           <div className="space-y-4">
             <FormField
               control={form.control}
-              name="firstName"
+              name="firstname"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>First Name</FormLabel>
@@ -105,7 +129,7 @@ export default function UserSettingsComponent() {
             />
             <FormField
               control={form.control}
-              name="lastName"
+              name="lastname"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Last Name</FormLabel>
@@ -118,10 +142,7 @@ export default function UserSettingsComponent() {
           </div>
 
           <div className="flex flex-row justify-between pt-4">
-          <Button
-              variant="destructive"
-              onClick={handleDeleteAccount}
-            >
+            <Button variant="destructive" onClick={handleDeleteAccount}>
               Delete Account
             </Button>
             <Button type="submit">Save changes</Button>

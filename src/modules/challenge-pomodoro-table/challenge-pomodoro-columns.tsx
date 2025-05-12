@@ -31,7 +31,7 @@ export const getColumns = (
     id: "delete",
     header: "Delete",
     cell: ({ row }) => {
-      const { name } = row.original;
+      const { id } = row.original;
 
       return (
         <Button
@@ -39,7 +39,7 @@ export const getColumns = (
           size="icon"
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(name);
+            onDelete(id!);
           }}
         >
           <SquareX className="text-red-500" />
