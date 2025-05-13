@@ -1,8 +1,9 @@
+"use client";
 import React from "react";
 import { Calendar as UICalendar } from "@/components/ui/calendar";
 
 function Calendar() {
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [date, setDate] = React.useState<Date | undefined>(() => new Date());
 
   return (
     <div className="w-full h-full bg-white rounded-md shadow-md p-6 flex-1">

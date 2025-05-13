@@ -200,7 +200,7 @@ function PomodoroTimer({ challenges }: { challenges: Challenge[] }) {
                     );
                     if (selected) {
                       setChallenge(selected.id!);
-                      setTime(selected.progress);
+                      setTime(selected.criterion - selected.progress);
                     }
                   }}
                 >

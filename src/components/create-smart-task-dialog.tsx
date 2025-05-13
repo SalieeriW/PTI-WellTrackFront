@@ -1,7 +1,7 @@
 "use client";
 import { v4 as uuidv4 } from "uuid";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import SmartTaskSchema, { SmartTask } from "@/schema/smart-task.schema";
 import ChallengeSchema, { Challenge } from "@/schema/challenge-schema";
+import axios from "axios";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 type Props = {
   onClose: () => void;
@@ -54,6 +62,27 @@ export default function CreateSmartTaskDialog({ onClose, onCreate }: Props) {
       console.log("Form contains errors. Not submitting.");
     }
   };
+
+  const [metrics, setMetrics] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/api/metrics");
+        if (response.status === 200) {
+          setMetrics(
+            response.data.map((metric: { name: string }) => metric.name)
+          );
+        } else {
+          console.error("Failed to fetch metrics:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching metrics:", error);
+      }
+    };
+
+    fetchMetrics();
+  }, []);
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -153,10 +182,18 @@ export default function CreateSmartTaskDialog({ onClose, onCreate }: Props) {
                 <FormItem>
                   <FormLabel>Metric</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Metric (e.g., time, tasks)"
-                      {...field}
-                    />
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a metric" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {metrics.map((metric) => (
+                          <SelectItem key={metric} value={metric}>
+                            {metric}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                 </FormItem>
               )}

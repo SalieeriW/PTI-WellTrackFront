@@ -98,6 +98,42 @@ function Pomodoro() {
     }
   }, [id]);
 
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      const response = await axios.get(
+        `http://localhost:3001/api/challenges/${id}`
+      );
+
+      const rawChallenges = response.data;
+
+      const parsedChallenges: (Challenge & { isST?: boolean } & {
+        isCompleted: boolean;
+      })[] = rawChallenges.map((item: any) => ({
+        id: String(item.id),
+        date: new Date(item.created_at).toISOString().split("T")[0],
+        name: item.name || "Unnamed Challenge",
+        description: item.description || "No description provided",
+        progress: Number(item.progress) || 0,
+        criterion: String(item.meta ?? "No criterion specified"),
+        metricTypes: String(item.metric ?? "N/A"),
+        downloadUrl: item.pdf_url || undefined,
+        isST: item.is_smarttask === true,
+        isCompleted: item.completed === true,
+      }));
+
+      const filteredChallengesPomodoro = parsedChallenges.filter(
+        (item) => !item.isST && !item.isCompleted && item.metricTypes == "time"
+      );
+      setChallengesPomodoro(
+        filteredChallengesPomodoro.map(({ isST, isCompleted, ...rest }) => rest)
+      );
+    };
+
+    if (id) {
+      fetchChallenges();
+    }
+  }, [challenges]);
+
   return (
     <div className="flex flex-col items-center h-full w-full gap-4">
       <PomodoroTimer challenges={challengesPomodoro} />

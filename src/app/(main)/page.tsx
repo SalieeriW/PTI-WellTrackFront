@@ -9,11 +9,15 @@ import {
 import MetricCard from "@/components/metric-card";
 import BarChartComponent from "@/components/barchart";
 import PieChartComponent from "@/components/piechart";
-import Calendar from "@/components/custom-calendar";
 import { ChallengeTable } from "@/components/table";
 import { JSX, useEffect, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
+
+const Calendar = dynamic(() => import("@/components/custom-calendar"), {
+  ssr: false,
+});
 
 // Extend the Session type to include the id property
 declare module "next-auth" {
