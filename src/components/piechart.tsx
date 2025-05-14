@@ -82,7 +82,7 @@ export default function PieChartComponent({ chartData }: any) {
             />
             <Pie
               data={chartData}
-              dataKey="progress"
+              dataKey="meta"
               nameKey="name"
               innerRadius={60}
               strokeWidth={5}
