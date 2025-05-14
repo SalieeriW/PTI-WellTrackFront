@@ -39,7 +39,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend # Asegúrate de que esta ruta sea correcta
+          context: .
           push: true
           tags: |
             ghcr.io/${{ steps.lower.outputs.owner }}/welltrack-frontend:${{ steps.vars.outputs.sha_short }}
