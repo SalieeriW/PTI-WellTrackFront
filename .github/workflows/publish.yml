@@ -34,7 +34,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ steps.meta.outputs.image_name }}:latest ./frontend
+          docker build -t ${{ steps.meta.outputs.image_name }}:latest .
 
       - name: Push Docker image
         run: |
