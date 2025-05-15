@@ -19,7 +19,7 @@ export default function WebcamPreview() {
 
   const fetchSettings = async () => {
     const res = await fetch(
-      `http://localhost:3001/api/generalSettings/${userId}`
+      `http://api.welltrack.local/api/generalSettings/${userId}`
     );
     const data = await res.json();
     setSettings(data);
@@ -67,7 +67,7 @@ export default function WebcamPreview() {
     const form = new FormData();
     form.append("image", blob, "frame.jpg");
 
-    const response = await fetch("http://localhost:3001/api/ml/" + event, {
+    const response = await fetch("http://api.welltrack.local/api/ml/" + event, {
       method: "POST",
       body: form,
     });

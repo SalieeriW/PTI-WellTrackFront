@@ -20,7 +20,7 @@ function Challenges() {
     const fetchChallenges = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/api/challenges/${id}`
+          `http://api.welltrack.local/api/challenges/${id}`
         );
 
         const challenges = response.data.map((item: any) => ({

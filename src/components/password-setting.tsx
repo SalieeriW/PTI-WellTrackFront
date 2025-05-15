@@ -42,7 +42,7 @@ export default function PasswordSettingsComponent() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axiosInstance.post(
-        `http://localhost:3001/api/auth/change_password/${userId}`,
+        `http://api.welltrack.local/api/auth/change_password/${userId}`,
         {
           old_password: values.current,
           new_password: values.new,

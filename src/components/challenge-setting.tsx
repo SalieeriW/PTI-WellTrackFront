@@ -56,7 +56,7 @@ function ChallengeSettings() {
 
       try {
         const response = await axios.get(
-          `http://localhost:3001/api/challenges/settings/${id}`
+          `http://api.welltrack.local/api/challenges/settings/${id}`
         );
 
         console.log("Response from settings API:", response);
@@ -86,7 +86,7 @@ function ChallengeSettings() {
 
     try {
       await axios.post(
-        `http://localhost:3001/api/challenges/settings/${id}`,
+        `http://api.welltrack.local/api/challenges/settings/${id}`,
         data
       );
       alert("Settings saved successfully."); // or use toast

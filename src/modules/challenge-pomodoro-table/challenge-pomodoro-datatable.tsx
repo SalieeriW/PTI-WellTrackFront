@@ -25,7 +25,7 @@ export default function ChallengePomodoroDataTable({
     console.log("Challenge deleted:", id);
 
     axios
-      .delete(`http://localhost:3001/api/challenges/${user_id}/${id}`)
+      .delete(`http://api.welltrack.local/api/challenges/${user_id}/${id}`)
       .then(() => {
         console.log("Challenge deleted successfully");
       })

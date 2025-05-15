@@ -44,7 +44,7 @@ function SettingsComponent() {
     const fetchSettings = async () => {
       try {
         const response = await axiosInstance.get(
-          `http://localhost:3001/api/generalSettings/${id}`
+          `http://api.welltrack.local/api/generalSettings/${id}`
         );
 
         console.log("Fetched settings:", response.data);
@@ -74,7 +74,7 @@ function SettingsComponent() {
   const onSubmit = async (data: z.infer<typeof settingsSchema>) => {
     try {
       const response = await axiosInstance.post(
-        `http://localhost:3001/api/generalSettings/${id}`,
+        `http://api.welltrack.local/api/generalSettings/${id}`,
         data
       );
       console.log("Settings updated:", response.data);

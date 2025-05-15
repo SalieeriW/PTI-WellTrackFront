@@ -24,10 +24,13 @@ export function ForgotPasswordForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3001/recover_password", {
-        email, // Enviar solo el email desde el formulario
-      });
-  
+      const response = await axios.post(
+        "http://api.welltrack.local/recover_password",
+        {
+          email, // Enviar solo el email desde el formulario
+        }
+      );
+
       if (response.status === 200) {
         setSuccess("Password reset instructions have been sent to your email.");
         setError("");

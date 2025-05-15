@@ -54,13 +54,13 @@ function PomodoroTimer({ challenges }: { challenges: Challenge[] }) {
     try {
       if (event === "pomodoroGet") {
         const response = await axios.get(
-          `http://localhost:3001/api/challenges/${id}/${challengeId}`
+          `http://api.welltrack.local/api/challenges/${id}/${challengeId}`
         );
 
         return response.data.progress;
       } else if (event === "pomodoroCompleted") {
         const response = await axios.patch(
-          `http://localhost:3001/api/challenges/${id}/${challengeId}`,
+          `http://api.welltrack.local/api/challenges/${id}/${challengeId}`,
           {
             progress: progress,
             completed: true,
@@ -68,14 +68,14 @@ function PomodoroTimer({ challenges }: { challenges: Challenge[] }) {
         );
       } else if (event === "pomodoroLog") {
         const response = await axios.patch(
-          `http://localhost:3001/api/challenges/${id}/${challengeId}`,
+          `http://api.welltrack.local/api/challenges/${id}/${challengeId}`,
           {
             progress: progress,
           }
         );
       } else if (event === "pomodoroRest") {
         const response = await axios.post(
-          `http://localhost:3001/api/activity/${id}`,
+          `http://api.welltrack.local/api/activity/${id}`,
           {
             activity: "rest",
           }
