@@ -36,8 +36,8 @@ export const authOptions: NextAuthOptions = {
           const { email, password, action } = credentials ?? {};
           const url =
             action === "register"
-              ? "http://backend:3001/api/auth/register"
-              : "http://backend:3001/api/auth/login";
+              ? `http://welltrack-backend:3001/api/auth/register`
+              : `http://welltrack-backend:3001/api/auth/login`;
 
           const response = await axios.post(url, { email, password });
           return { id: response.data.user_id, email: response.data.email };
