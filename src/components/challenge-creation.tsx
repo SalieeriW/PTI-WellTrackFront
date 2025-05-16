@@ -41,7 +41,7 @@ function ChallengeCreation({
     setChallenges((prevChallenges) => [...prevChallenges, newChallenge]);
 
     axios
-      .post(`http://api.welltrack.local/api/challenges/${id}`, {
+      .post(`https://api.welltrack.local/api/challenges/${id}`, {
         name: newChallenge.name,
         description: newChallenge.description,
         meta: newChallenge.criterion,
@@ -70,7 +70,7 @@ function ChallengeCreation({
   const addSmartTask = (newSmartTask: Challenge) => {
     setSmartTasks((prevSmartTasks) => [...prevSmartTasks, newSmartTask]);
     axios
-      .post(`http://api.welltrack.local/api/challenges/${id}`, {
+      .post(`https://api.welltrack.local/api/challenges/${id}`, {
         name: newSmartTask.name,
         description: newSmartTask.description,
         meta: newSmartTask.criterion,

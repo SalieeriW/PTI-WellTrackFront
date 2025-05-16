@@ -42,7 +42,7 @@ function Pomodoro() {
     const fetchChallenges = async () => {
       try {
         const response = await axios.get(
-          `http://api.welltrack.local/api/challenges/${id}`
+          `https://api.welltrack.local/api/challenges/${id}`
         );
 
         const rawChallenges = response.data;
@@ -101,7 +101,7 @@ function Pomodoro() {
   useEffect(() => {
     const fetchChallenges = async () => {
       const response = await axios.get(
-        `http://api.welltrack.local/api/challenges/${id}`
+        `https://api.welltrack.local/api/challenges/${id}`
       );
 
       const rawChallenges = response.data;

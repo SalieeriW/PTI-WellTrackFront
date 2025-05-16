@@ -111,7 +111,7 @@ export default function Dashboard() {
         if (!id) return;
 
         const response = await axios.get(
-          `http://api.welltrack.local/api/dashboard/${id}`
+          `https://api.welltrack.local/api/dashboard/${id}`
         );
 
         console.log("Response from dashboard API:", response);

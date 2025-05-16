@@ -62,7 +62,7 @@ export default function CreateChallengeDialog({ onClose, onCreate }: Props) {
     const fetchMetrics = async () => {
       try {
         const response = await axios.get(
-          "http://api.welltrack.local/api/metrics"
+          "https://api.welltrack.local/api/metrics"
         );
         if (response.status === 200) {
           setMetrics(

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://api.welltrack.local", // puerto servidor
+  baseURL: "https://api.welltrack.local", // puerto servidor
   headers: {
     "Content-Type": "application/json",
   },

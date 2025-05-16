@@ -55,7 +55,7 @@ export default function UserSettingsComponent() {
 
       try {
         const response = await axios.get(
-          `http://api.welltrack.local/api/auth/get_names/${userId}`
+          `https://api.welltrack.local/api/auth/get_names/${userId}`
         );
         const { firstname, lastname } = response.data;
 
@@ -75,7 +75,7 @@ export default function UserSettingsComponent() {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     try {
       axios.post(
-        `http://api.welltrack.local/api/auth/change_name/${userId}`,
+        `https://api.welltrack.local/api/auth/change_name/${userId}`,
         values
       );
       alert("Name updated successfully!");
@@ -88,7 +88,7 @@ export default function UserSettingsComponent() {
   const handleDeleteAccount = async () => {
     try {
       const response = await axios.delete(
-        `http://api.welltrack.local/api/auth/delete_account/${userId}`
+        `https://api.welltrack.local/api/auth/delete_account/${userId}`
       );
       alert("Account deleted successfully!");
       signOut();

@@ -25,7 +25,7 @@ export function ForgotPasswordForm({
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://api.welltrack.local/recover_password",
+        "https://api.welltrack.local/recover_password",
         {
           email, // Enviar solo el email desde el formulario
         }

@@ -44,7 +44,7 @@ export function ChallengeTable() {
     const fetchChallenges = async () => {
       try {
         const response = await axios.get(
-          `http://api.welltrack.local/api/challenges/${id}`
+          `https://api.welltrack.local/api/challenges/${id}`
         );
 
         const challenges = response.data.map((item: any) => ({
