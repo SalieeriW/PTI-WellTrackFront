@@ -80,6 +80,9 @@ function PomodoroTimer({ challenges }: { challenges: Challenge[] }) {
             activity: "rest",
           }
         );
+        const response2 = await axios.post(
+          `https://api.welltrack.local/api/activity/rest/${id}`
+        );
       }
     } catch (err) {
       console.error("Failed to log Pomodoro event:", err);

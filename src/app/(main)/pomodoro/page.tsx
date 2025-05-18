@@ -67,8 +67,7 @@ function Pomodoro() {
         );
 
         const filteredChallengesPomodoro = parsedChallenges.filter(
-          (item) =>
-            !item.isST && !item.isCompleted && item.metricTypes == "time"
+          (item) => !item.isCompleted && item.metricTypes == "time"
         );
 
         const filteredSmartTasks = parsedChallenges.filter(
@@ -122,7 +121,7 @@ function Pomodoro() {
       }));
 
       const filteredChallengesPomodoro = parsedChallenges.filter(
-        (item) => !item.isST && !item.isCompleted && item.metricTypes == "time"
+        (item) => !item.isCompleted && item.metricTypes == "time"
       );
       setChallengesPomodoro(
         filteredChallengesPomodoro.map(({ isST, isCompleted, ...rest }) => rest)
