@@ -23,9 +23,11 @@ export const columns: ColumnDef<Challenge>[] = [
     header: "",
     cell: ({ row }) => {
       const { downloadUrl, name } = row.original;
-
+      if (!downloadUrl) {
+        return null; // No download URL available
+      }
       return (
-        <a href={downloadUrl} download={name + ".pdf"}>
+        <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
           <Button variant="ghost" size="icon">
             <Download className="w-4 h-4" />
           </Button>

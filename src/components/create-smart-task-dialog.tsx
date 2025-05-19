@@ -40,10 +40,12 @@ export default function CreateSmartTaskDialog({ onClose, onCreate }: Props) {
   const form = useForm<z.infer<typeof ChallengeSchema>>({
     resolver: zodResolver(ChallengeSchema),
     defaultValues: {
-      id: "",
       name: "",
       description: "",
-      date: "",
+      progress: 0,
+      criterion: 0,
+      fingers: 0,
+      metricTypes: "",
     },
   });
 
