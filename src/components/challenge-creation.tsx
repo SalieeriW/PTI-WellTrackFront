@@ -76,6 +76,7 @@ function ChallengeCreation({
         meta: newSmartTask.criterion,
         metric: newSmartTask.metricTypes,
         progress: newSmartTask.progress,
+        fingers: newSmartTask.fingers,
         completed: false,
         is_smarttask: true,
       })
